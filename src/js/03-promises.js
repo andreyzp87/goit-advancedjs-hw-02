@@ -12,6 +12,8 @@ function onSubmit(event) {
   const step = parseInt(event.target.elements.step.value);
   const amount = parseInt(event.target.elements.amount.value);
 
+  form.reset();
+
   for (let i = 1; i <= amount; i++) {
     createPromise(i, delay + step * (i - 1))
       .then(({ position, delay }) => {

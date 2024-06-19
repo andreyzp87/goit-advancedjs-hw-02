@@ -17,13 +17,23 @@ flatpickr(dateTimePicker, {
   defaultDate: new Date(),
   minuteIncrement: 1,
   onClose(selectedDates) {
-    console.log(selectedDates[0]);
+    selectedDateTime = new Date(selectedDates[0]);
+    const timeDiff = selectedDateTime - new Date();
+
+    if (timeDiff > 0) {
+      startButton.disabled = false;
+      return;
+    }
+
+    iziToast.error({
+      title: 'Error',
+      message: 'Please choose a date in the future',
+    });
   },
 });
 
 startButton.disabled = true;
 startButton.addEventListener('click', onStartClick);
-dateTimePicker.addEventListener('change', onDateChange);
 
 let selectedDateTime = null;
 let intervalId = null;
@@ -31,17 +41,8 @@ let intervalId = null;
 function onStartClick(event) {
   event.preventDefault();
 
-  const timeDiff = selectedDateTime - new Date();
-
-  if (timeDiff < 0) {
-    iziToast.error({
-      title: 'Error',
-      message: 'Please choose a date in the future',
-    });
-    return;
-  }
-
   startButton.disabled = true;
+  dateTimePicker.disabled = true;
 
   intervalId = setInterval(() => {
     const diff = selectedDateTime - new Date();
@@ -50,7 +51,7 @@ function onStartClick(event) {
       updateTimer({ days: 0, hours: 0, minutes: 0, seconds: 0 });
       clearInterval(intervalId);
 
-      startButton.disabled = false;
+      dateTimePicker.disabled = false;
 
       iziToast.success({
         title: 'Success',
@@ -61,11 +62,6 @@ function onStartClick(event) {
 
     updateTimer(convertMs(diff));
   }, 1000);
-}
-
-function onDateChange(event) {
-  selectedDateTime = new Date(event.target.value);
-  startButton.disabled = false;
 }
 
 function updateTimer({ days, hours, minutes, seconds }) {
